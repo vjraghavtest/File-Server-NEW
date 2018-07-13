@@ -10,6 +10,7 @@ public class ClientDetail {
 		super();
 		this.name = name;
 		this.socket = socket;
+		files=new ArrayList<FileDetail>();
 	}
 	public String getName() {
 		return name;

@@ -16,7 +16,6 @@ public class ClientHandler extends Thread {
 	public ClientHandler(ClientDetail detail) {
 		this.detail = detail;
 		this.socket = detail.getSocket();
-
 	}
 
 	public String gettimestamp() {
@@ -34,22 +33,25 @@ public class ClientHandler extends Thread {
 		HashMap<String, String> file = null;
 		int bytesRead = 0;
 		int filesize = 0;
-		int bufferSize = 8 * 1024;
+		int bufferSize = 1024 * 1024 ;
 		int remainingBytes = 0;
 		byte[] buffer = null;
 		String tmp1, tmp2;
 
-		// initialization block
-		try {
-			printWriter = new PrintWriter(socket.getOutputStream());
-			inputStream = new BufferedInputStream(socket.getInputStream());
-			System.out.println("Init success");
-		} catch (IOException e1) {
-			System.out.println("Client is disconnected");
-			FileServer.statistics.removeActiveUers();
-		}
+		
 
 		while (true) {
+			// initialization block
+			try {
+				printWriter = new PrintWriter(socket.getOutputStream());
+				inputStream = new BufferedInputStream(socket.getInputStream());
+				System.out.println("Init success");
+			} catch (IOException e1) {
+				System.out.println("Client is disconnected");
+				FileServer.statistics.removeActiveUers();
+				break;
+			}
+			
 			// receiving file details as object
 			try {
 				buffer = new byte[bufferSize];
@@ -146,6 +148,11 @@ public class ClientHandler extends Thread {
 					FileServer.statistics.addFilesUploaded();
 					// success message to client
 					printWriter.println("SUCCESS " + path);
+					
+					//adding to details
+					FileDetail fileDetail2=new FileDetail(filename, path);
+					detail.getFiles().add(fileDetail2);
+					
 
 				} else {
 					// Sending failure response
