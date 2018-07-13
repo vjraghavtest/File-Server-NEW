@@ -46,7 +46,11 @@ public class ClientHandler extends Thread {
 				inputStream = new BufferedInputStream(socket.getInputStream());
 				buffer = new byte[bufferSize];
 				// System.out.println("Init success");
-
+				
+				//sending ack
+				printWriter.println("Hello");
+				printWriter.flush();
+				
 				// System.out.println("Receiving file details as string");
 				inputStream.read(buffer);
 				data = new String(buffer);
@@ -150,9 +154,12 @@ public class ClientHandler extends Thread {
 						System.out.println("File transfer Incomplete");
 						printWriter.println("TRANSFER FAILED");
 					}
-
+					
 					printWriter.flush();
 					System.out.println("File transfer message sent to client");
+					int tmp = 0;
+					outputStream.write(tmp);
+					System.out.println("tmp"+tmp);
 					FileServer.printStatistics();
 					outputStream.close();
 
