@@ -1,7 +1,8 @@
 import java.util.LinkedHashMap;
 
 public class Statistics {
-	private int filesUploaded, dataUploaded, activeUers;
+	private int filesUploaded, activeUers;
+	private long dataUploaded;
 
 	public int getActiveUers() {
 		return activeUers;
@@ -18,7 +19,7 @@ public class Statistics {
 	LinkedHashMap<String, ClientDetail> clientDetails;
 
 	public Statistics() {
-		filesUploaded = dataUploaded = 0;
+		filesUploaded = (int) (dataUploaded = 0);
 		clientDetails = new LinkedHashMap<String, ClientDetail>();
 	}
 
@@ -30,12 +31,12 @@ public class Statistics {
 		this.filesUploaded += 1;
 	}
 
-	public int getDataUploaded() {
+	public long getDataUploaded() {
 		return dataUploaded;
 	}
 
-	public void addDataUploaded(int dataUploaded) {
-		this.dataUploaded += dataUploaded;
+	public void addDataUploaded(long l) {
+		this.dataUploaded += l;
 	}
 
 	public LinkedHashMap<String, ClientDetail> getClientDetails() {

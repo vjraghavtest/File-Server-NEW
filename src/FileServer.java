@@ -6,9 +6,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedHashMap;
 
+
 public class FileServer {
 	public static int PORT = 5555;
 	public static Statistics statistics;
+	
+	public static void disconnectClient(String name){
+		System.out.println("Client "+name+" is disconnected");
+		statistics.removeActiveUers();
+	}
 
 	public static void printStatistics() {
 		System.out.println("---------------------Statistics---------------------");
@@ -32,7 +38,8 @@ public class FileServer {
 			serverSocket = new ServerSocket(PORT);
 			System.out.println("Server started");
 		} catch (IOException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			System.out.println("Error while starting server.Please close other pprogram using PORT "+PORT);
 		}
 
 		// creating client details
@@ -40,7 +47,7 @@ public class FileServer {
 		LinkedHashMap<String, ClientDetail> clientDetails = statistics.getClientDetails();
 
 		// wait for connection
-		while (true) {
+		while (true && serverSocket!=null) {
 			try {
 				System.out.println("Waiting for connection");
 				socket = serverSocket.accept();
@@ -50,7 +57,21 @@ public class FileServer {
 				// receiving name
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				// System.out.println("Receiving name");
-				name = reader.readLine();
+				try {
+					name = reader.readLine();
+					
+				} catch (Exception e) {
+//					System.out.println("Client is disconnected");
+//					statistics.removeActiveUers();
+					disconnectClient("");
+					continue;
+//					e.printStackTrace();
+				}
+				if(name.equals("null")){
+//					statistics.removeActiveUers();
+					disconnectClient("");
+					continue;
+				}
 				System.out.println("Client " + name + " is connected");
 
 				// sending ack to client
@@ -87,8 +108,9 @@ public class FileServer {
 				System.out.println("Thread started");
 
 			} catch (IOException e) {
-				System.out.println("Client is disconnected");
-				statistics.removeActiveUers();
+				disconnectClient("");
+//				System.out.println("Client is disconnected");
+//				statistics.removeActiveUers();
 //				e.printStackTrace();
 			}
 		}

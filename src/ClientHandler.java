@@ -32,9 +32,9 @@ public class ClientHandler extends Thread {
 		String owner = null, filename = null;
 		HashMap<String, String> file = null;
 		int bytesRead = 0;
-		int filesize = 0;
+		long filesize = 0;
 		int bufferSize = 1024 * 1024 ;
-		int remainingBytes = 0;
+		long remainingBytes = 0;
 		byte[] buffer = null;
 		String tmp1, tmp2;
 
@@ -45,10 +45,11 @@ public class ClientHandler extends Thread {
 			try {
 				printWriter = new PrintWriter(socket.getOutputStream());
 				inputStream = new BufferedInputStream(socket.getInputStream());
-				System.out.println("Init success");
+//				System.out.println("Init success");
 			} catch (IOException e1) {
-				System.out.println("Client is disconnected");
-				FileServer.statistics.removeActiveUers();
+				FileServer.disconnectClient(detail.getName());
+//				System.out.println("Client is disconnected");
+//				FileServer.statistics.removeActiveUers();
 				break;
 			}
 			
@@ -69,20 +70,22 @@ public class ClientHandler extends Thread {
 							tmp1 = stringTokenizer2.nextToken();
 							tmp2 = stringTokenizer2.nextToken();
 							file.put(tmp1, tmp2);
-							System.out.println(tmp1 + "----" + tmp2 + "----");
+//							System.out.println(tmp1 + "----" + tmp2 + "----");
 						}
 					} catch (Exception e) {
+						FileServer.disconnectClient(detail.getName());
 //						System.out.println("Invalid details");
-						System.out.println("Client is disconnected");
-						FileServer.statistics.removeActiveUers();
+//						System.out.println("Client is disconnected");
+//						FileServer.statistics.removeActiveUers();
 //						e.printStackTrace();
 						break;
 					}
 
 				} catch (Exception e) {
-					System.out.println(detail.getName() + " is disconnected");
+					FileServer.disconnectClient(detail.getName());
+//					System.out.println(detail.getName() + " is disconnected");
 					detail.setOnline(false);
-					FileServer.statistics.removeActiveUers();
+//					FileServer.statistics.removeActiveUers();
 					break;
 					// e.printStackTrace();
 				}
@@ -112,13 +115,13 @@ public class ClientHandler extends Thread {
 
 				// Receiving file
 				System.out.println(file.get("filesize") + "--hi");
-				filesize = (int) Long.parseLong(file.get("filesize"));
+				filesize = Long.parseLong(file.get("filesize"));
 				remainingBytes = filesize;
 				System.out.println("Receiving file");
 				try {
 					while (true) {
 						// System.out.println("Reading from stream");
-						bytesRead = inputStream.read(buffer, 0, Math.min(bufferSize, remainingBytes));
+						bytesRead = inputStream.read(buffer, 0, (int) Math.min(bufferSize, remainingBytes));
 						
 						// System.out.println(bytesRead + " bytes received");
 						if (bytesRead < 0 || remainingBytes <= 0)
@@ -132,17 +135,20 @@ public class ClientHandler extends Thread {
 					}
 				} catch (Exception e) {
 //					e.printStackTrace();
+					FileServer.disconnectClient(detail.getName());
 					FileServer.statistics.addDataUploaded(filesize-remainingBytes);
-					System.out.println("Client is disconnected");
-					FileServer.statistics.removeActiveUers();
+//					System.out.println("Client is disconnected");
+//					FileServer.statistics.removeActiveUers();
 					break;
 				}
 
 				outputStream.flush();
 				System.out.println("File received success fully");
 				FileServer.statistics.addDataUploaded(filesize);
+				
 				// verification using checksum
 				// sending ACK TO Client
+				System.out.println("Comparing checksum");
 				if (Checksum.getChecksum(path).equals(file.get("checksum"))) {
 					System.out.println("File both are same");
 					FileServer.statistics.addFilesUploaded();
@@ -167,9 +173,10 @@ public class ClientHandler extends Thread {
 				outputStream.close();
 				// }
 			} catch (IOException e) {
-				System.out.println("Client is disconnected");
-				FileServer.statistics.removeActiveUers();
-				e.printStackTrace();
+//				System.out.println("Client is disconnected");
+//				FileServer.statistics.removeActiveUers();
+//				e.printStackTrace();
+				FileServer.disconnectClient(detail.getName());
 			}
 
 			// clearing buffer
