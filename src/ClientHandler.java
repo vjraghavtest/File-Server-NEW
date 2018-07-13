@@ -53,14 +53,16 @@ public class ClientHandler extends Thread {
 				break;
 			}
 			
-			// receiving file details as object
+			// receiving file details as json String
 			try {
 				buffer = new byte[bufferSize];
-				// System.out.println("Receiving file details as obj");
+				// System.out.println("Receiving file details as string");
 				try {
 					inputStream.read(buffer);
 					fileDetail = new String(buffer);
-
+					fileDetail=fileDetail.substring(0, fileDetail.lastIndexOf('|'));
+//					System.out.println(fileDetail);
+					
 					// string tokenizer
 					try {
 						StringTokenizer stringTokenizer = new StringTokenizer(fileDetail, ",");
@@ -95,7 +97,7 @@ public class ClientHandler extends Thread {
 				// new path
 				owner = file.get("owner");
 				filename = gettimestamp() + "-" + file.get("name");
-				System.out.println(owner + "----" + filename);
+//				System.out.println(owner + "----" + filename);
 				String path = "C:\\Users\\Administrator\\Desktop\\";
 				path += owner + "\\" + filename;
 
