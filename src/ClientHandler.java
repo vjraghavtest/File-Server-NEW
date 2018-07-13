@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -96,7 +97,6 @@ public class ClientHandler extends Thread {
 					// getting file size
 
 					// Receiving file
-					System.out.println(file.get("filesize") + "--hi");
 					filesize = Long.parseLong(file.get("filesize"));
 					remainingBytes = filesize;
 					System.out.println("Receiving file");
@@ -141,7 +141,7 @@ public class ClientHandler extends Thread {
 						printWriter.println("SUCCESS " + path);
 
 						// adding to details
-						FileDetail fileDetail2 = new FileDetail(filename, path);
+						FileDetail fileDetail2 = new FileDetail(file.get("name"), path);
 						detail.getFiles().add(fileDetail2);
 
 					} else {
@@ -156,11 +156,24 @@ public class ClientHandler extends Thread {
 					FileServer.printStatistics();
 					outputStream.close();
 
-				} else if (data.equals("INFO")) {
+				} else if (data.equals("LIST")) {
+
 					// retrive file details
-					
+					ArrayList<FileDetail> files = detail.getFiles();
+
 					// parse it as string (JSON format)
+					StringBuffer fileDetails = new StringBuffer();
+					for (FileDetail fileData : files) {
+						fileDetails.append(fileData.getName() + "<" + fileData.getPath() + "|");
+					}
+//					System.out.println("Data is " + fileDetails);
+					
 					// send to client
+					printWriter.println(fileDetails.toString());
+					printWriter.flush();
+					
+					System.out.println("Data sent to client");
+
 				} else if (data.equals("END")) {
 					System.out.println("Client " + detail.getName() + " requested for end connection");
 					FileServer.disconnectClient(detail.getName());

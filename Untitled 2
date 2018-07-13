@@ -1,0 +1,102 @@
+// string tokenizer
+					try {
+						StringTokenizer stringTokenizer = new StringTokenizer(fileDetail, ",");
+						file = new HashMap<String, String>();
+						while (stringTokenizer.hasMoreTokens()) {
+							StringTokenizer stringTokenizer2 = new StringTokenizer(stringTokenizer.nextToken(), ":");
+							tmp1 = stringTokenizer2.nextToken();
+							tmp2 = stringTokenizer2.nextToken();
+							file.put(tmp1, tmp2);
+//							System.out.println(tmp1 + "----" + tmp2 + "----");
+						}
+					} catch (Exception e) {
+						FileServer.disconnectClient(detail.getName());
+//						System.out.println("Invalid details");
+//						System.out.println("Client is disconnected");
+//						FileServer.statistics.removeActiveUers();
+//						e.printStackTrace();
+						break;
+					}
+					
+					System.out.println("File Details received");
+				System.out.println("details received ");
+
+				// new path
+				owner = file.get("owner");
+				filename = gettimestamp() + "-" + file.get("name");
+//				System.out.println(owner + "----" + filename);
+				String path = "C:\\Users\\Administrator\\Desktop\\";
+				path += owner + "\\" + filename;
+
+				// creating folder
+				new File("C:\\Users\\Administrator\\Desktop\\" + owner).mkdirs();
+				System.out.println("New Path-" + path);
+
+				// creating output path
+				outputStream = new BufferedOutputStream(new FileOutputStream(new File(path)));
+
+				// Sending ACK
+				printWriter.println("ACK OBJ");
+				printWriter.flush();
+				System.out.println("ACK OBJ SENT");
+
+				// getting file size
+
+				// Receiving file
+				System.out.println(file.get("filesize") + "--hi");
+				filesize = Long.parseLong(file.get("filesize"));
+				remainingBytes = filesize;
+				System.out.println("Receiving file");
+				try {
+					while (true) {
+						// System.out.println("Reading from stream");
+						bytesRead = inputStream.read(buffer, 0, (int) Math.min(bufferSize, remainingBytes));
+						
+						// System.out.println(bytesRead + " bytes received");
+						if (bytesRead < 0 || remainingBytes <= 0)
+							break;
+						else
+							remainingBytes = remainingBytes - bytesRead;
+
+						// System.out.println(remainingBytes + " bytes remaining");
+						outputStream.write(buffer, 0, bytesRead);
+						// System.out.println(bytesRead + " bytes written to file");
+					}
+				} catch (Exception e) {
+//					e.printStackTrace();
+					FileServer.disconnectClient(detail.getName());
+					FileServer.statistics.addDataUploaded(filesize-remainingBytes);
+//					System.out.println("Client is disconnected");
+//					FileServer.statistics.removeActiveUers();
+					break;
+				}
+
+				outputStream.flush();
+				System.out.println("File received success fully");
+				FileServer.statistics.addDataUploaded(filesize);
+				
+				// verification using checksum
+				// sending ACK TO Client
+				System.out.println("Comparing checksum");
+				if (Checksum.getChecksum(path).equals(file.get("checksum"))) {
+					System.out.println("File both are same");
+					FileServer.statistics.addFilesUploaded();
+					// success message to client
+					printWriter.println("SUCCESS " + path);
+					
+					//adding to details
+					FileDetail fileDetail2=new FileDetail(filename, path);
+					detail.getFiles().add(fileDetail2);
+					
+
+				} else {
+					// Sending failure response
+					System.out.println("File are not same");
+					System.out.println("File transfer Incomplete");
+					printWriter.println("TRANSFER FAILED");
+				}
+
+				printWriter.flush();
+				System.out.println("File transfer message sent to client");
+				FileServer.printStatistics();
+				outputStream.close();
