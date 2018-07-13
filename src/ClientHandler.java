@@ -46,10 +46,7 @@ public class ClientHandler extends Thread {
 				buffer = new byte[bufferSize];
 				// System.out.println("Init success");
 
-				
-				
-				
-			// System.out.println("Receiving file details as string");
+				// System.out.println("Receiving file details as string");
 				inputStream.read(buffer);
 				data = new String(buffer);
 				data = data.substring(0, data.lastIndexOf('|'));
@@ -160,16 +157,17 @@ public class ClientHandler extends Thread {
 					outputStream.close();
 
 				} else if (data.equals("INFO")) {
-					//retrive file details
-					//parse it as string (JSON format)
-					//send to client
+					// retrive file details
+					
+					// parse it as string (JSON format)
+					// send to client
 				} else if (data.equals("END")) {
 					System.out.println("Client " + detail.getName() + " requested for end connection");
 					FileServer.disconnectClient(detail.getName());
 					socket.close();
 					break;
-				} else{
-					System.out.println("Invalid request:"+data);
+				} else {
+					System.out.println("Invalid request:" + data);
 				}
 
 			} catch (Exception e) {
