@@ -1,13 +1,12 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -47,13 +46,7 @@ public class ClientHandler extends Thread {
 				inputStream = new BufferedInputStream(socket.getInputStream());
 				buffer = new byte[bufferSize];
 				// System.out.println("Init success");
-				
-				//sending ack
-				System.out.println("Sending ack");
-				printWriter.println("Hello");
-				System.out.println("Ack sent");
-				printWriter.flush();
-				
+
 				// System.out.println("Receiving file details as string");
 				inputStream.read(buffer);
 				data = new String(buffer);
@@ -104,7 +97,6 @@ public class ClientHandler extends Thread {
 					// getting file size
 
 					// Receiving file
-					System.out.println(file.get("filesize") + "--hi");
 					filesize = Long.parseLong(file.get("filesize"));
 					remainingBytes = filesize;
 					System.out.println("Receiving file");
@@ -149,7 +141,7 @@ public class ClientHandler extends Thread {
 						printWriter.println("SUCCESS " + path);
 
 						// adding to details
-						FileDetail fileDetail2 = new FileDetail(filename, path);
+						FileDetail fileDetail2 = new FileDetail(file.get("name"), path);
 						detail.getFiles().add(fileDetail2);
 
 					} else {
@@ -158,35 +150,30 @@ public class ClientHandler extends Thread {
 						System.out.println("File transfer Incomplete");
 						printWriter.println("TRANSFER FAILED");
 					}
-					
+
 					printWriter.flush();
-					System.out.println("Reading ack");
-					inputStream=null;
-					new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine();
-//					inputStream.read(buffer);
-					System.out.println(new String(buffer));
 					System.out.println("File transfer message sent to client");
-//					int tmp = 0;
-//					outputStream.write(tmp);
-//					System.out.println("tmp"+tmp);
 					FileServer.printStatistics();
 					outputStream.close();
 
-				} else if (data.equals("INFO")) {
+				} else if (data.equals("LIST")) {
+
 					// retrive file details
-					
+					ArrayList<FileDetail> files = detail.getFiles();
+
 					// parse it as string (JSON format)
+					StringBuffer fileDetails = new StringBuffer();
+					for (FileDetail fileData : files) {
+						fileDetails.append(fileData.getName() + "<" + fileData.getPath() + "|");
+					}
+//					System.out.println("Data is " + fileDetails);
+					
 					// send to client
-<<<<<<< HEAD
 					printWriter.println(fileDetails.toString());
 					printWriter.flush();
 					
 					System.out.println("Data sent to client");
-					if(inputStream.read()==1){
-						System.out.println("OK");
-					}
-=======
->>>>>>> parent of 7514e70... LIST feautre
+
 				} else if (data.equals("END")) {
 					System.out.println("Client " + detail.getName() + " requested for end connection");
 					FileServer.disconnectClient(detail.getName());
