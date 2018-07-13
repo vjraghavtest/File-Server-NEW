@@ -1,8 +1,10 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -48,7 +50,9 @@ public class ClientHandler extends Thread {
 				// System.out.println("Init success");
 				
 				//sending ack
+				System.out.println("Sending ack");
 				printWriter.println("Hello");
+				System.out.println("Ack sent");
 				printWriter.flush();
 				
 				// System.out.println("Receiving file details as string");
@@ -156,10 +160,15 @@ public class ClientHandler extends Thread {
 					}
 					
 					printWriter.flush();
+					System.out.println("Reading ack");
+					inputStream=null;
+					new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine();
+//					inputStream.read(buffer);
+					System.out.println(new String(buffer));
 					System.out.println("File transfer message sent to client");
-					int tmp = 0;
-					outputStream.write(tmp);
-					System.out.println("tmp"+tmp);
+//					int tmp = 0;
+//					outputStream.write(tmp);
+//					System.out.println("tmp"+tmp);
 					FileServer.printStatistics();
 					outputStream.close();
 
@@ -180,7 +189,9 @@ public class ClientHandler extends Thread {
 					printWriter.flush();
 					
 					System.out.println("Data sent to client");
-
+					if(inputStream.read()==1){
+						System.out.println("OK");
+					}
 				} else if (data.equals("END")) {
 					System.out.println("Client " + detail.getName() + " requested for end connection");
 					FileServer.disconnectClient(detail.getName());
