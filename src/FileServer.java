@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedHashMap;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class FileServer {
 	public static int PORT = 5555;
@@ -23,8 +26,18 @@ public class FileServer {
 		System.out.println("----------------------------------------------------");
 	}
 
-	@SuppressWarnings("resource")
 	public static void main(String[] args) {
+		FileHandler fileHandler=null;
+		Logger log=null;
+		try {
+			fileHandler=new FileHandler("C:\\Users\\Administrator\\Desktop\\Server log.txt");
+			fileHandler.setFormatter(new SimpleFormatter());
+			log=Logger.getLogger(FileServer.class.getName());
+			log.addHandler(fileHandler);
+		} catch (SecurityException | IOException e1) {
+			e1.printStackTrace();
+		}
+		
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		BufferedReader reader = null;
@@ -36,6 +49,7 @@ public class FileServer {
 		try {
 			serverSocket = new ServerSocket(PORT);
 			System.out.println("Server started");
+			log.info("Server started");
 		} catch (IOException e) {
 			// e.printStackTrace();
 			System.out.println("Error while starting server.Please close other pprogram using PORT " + PORT);
