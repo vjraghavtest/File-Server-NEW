@@ -166,12 +166,12 @@ public class ClientHandler extends Thread {
 					for (FileDetail fileData : files) {
 						fileDetails.append(fileData.getName() + "<" + fileData.getPath() + "|");
 					}
-//					System.out.println("Data is " + fileDetails);
-					
+					// System.out.println("Data is " + fileDetails);
+
 					// send to client
 					printWriter.println(fileDetails.toString());
 					printWriter.flush();
-					
+
 					System.out.println("Data sent to client");
 
 				} else if (data.equals("END")) {
@@ -180,7 +180,12 @@ public class ClientHandler extends Thread {
 					socket.close();
 					break;
 				} else {
-					System.out.println("Invalid request:" + data);
+//					System.out.println("Invalid request:" + data);
+					System.out.println("Received echo");
+					System.out.println("Sending echo");
+					printWriter.println("ECHO");
+					printWriter.flush();
+					System.out.println("ECHO sent");
 				}
 
 			} catch (Exception e) {
