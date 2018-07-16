@@ -34,7 +34,7 @@ public class ClientHandler extends Thread {
 			fileHandler.setFormatter(new SimpleFormatter());
 			logger.addHandler(fileHandler);
 
-			logger.info("In thread " + this.getName());
+			logger.fine("In thread " + this.getName());
 			System.out.println("Thread strated for client " + detail.getName());
 
 			int bufferSize = 1024 * 1024;
@@ -51,12 +51,12 @@ public class ClientHandler extends Thread {
 					inputStream.read(buffer);
 					String data = new String(buffer);
 					data = data.substring(0, data.lastIndexOf('|'));
-					logger.info("Formatted data"+data);
+					logger.fine("Formatted data"+data);
 					// System.out.println(fileDetail);
 
 					// handling data
 					if (data.startsWith("INFO")) {
-						logger.info("Data was INFO Command");
+						logger.fine("Data was INFO Command");
 						String fileDetail = data.substring(4);
 						logger.info("File details after extraction " + fileDetail);
 						// sending file
@@ -75,7 +75,7 @@ public class ClientHandler extends Thread {
 							// System.out.println(tmp1 + "----" + tmp2 +
 							// "----");
 						}
-						logger.info("File details received");
+						logger.fine("File details received");
 						// System.out.println("File Details received");
 						// System.out.println("details received ");
 
@@ -84,7 +84,6 @@ public class ClientHandler extends Thread {
 						logger.info("Owner " + owner);
 						String filename = gettimestamp() + "-" + file.get("name");
 						logger.info("File name " + filename);
-						// System.out.println(owner + "----" + filename);
 						String path = "C:\\Users\\Administrator\\Desktop\\";
 						path += owner + "\\" + filename;
 						logger.info("New path " + path);
@@ -92,6 +91,7 @@ public class ClientHandler extends Thread {
 						// creating folder
 						logger.info("Creating folder");
 						new File(home + owner).mkdirs();
+						logger.fine("Folder created");
 						// System.out.println("New Path-" + path);
 
 						// creating output path
@@ -103,29 +103,29 @@ public class ClientHandler extends Thread {
 						logger.info("ACK OBJ");
 						printWriter.println("ACK OBJ");
 						printWriter.flush();
-						logger.info("ACK OBJ SENT");
+						logger.fine("ACK OBJ SENT");
 
 						// getting file size
 
 						// Receiving file
 						long filesize = Long.parseLong(file.get("filesize"));
 						long remainingBytes = filesize;
-						logger.info("File size " + filesize);
+						logger.fine("File size " + filesize);
 						logger.info("Receiving file");
 						try {
 							while (true) {
-								logger.info("Reading from stream");
+//								logger.info("Reading from stream");
 								int bytesRead = inputStream.read(buffer, 0, (int) Math.min(bufferSize, remainingBytes));
 
-								logger.info(bytesRead + " bytes received");
+//								logger.info(bytesRead + " bytes received");
 								if (bytesRead < 0 || remainingBytes <= 0)
 									break;
 								else
 									remainingBytes = remainingBytes - bytesRead;
 
-								logger.info(remainingBytes + " bytes remaining");
+//								logger.info(remainingBytes + " bytes remaining");
 								outputStream.write(buffer, 0, bytesRead);
-								logger.info(bytesRead + " bytes written to file");
+//								logger.info(bytesRead + " bytes written to file");
 							}
 						} catch (Exception e) {
 							// e.printStackTrace();
@@ -161,10 +161,10 @@ public class ClientHandler extends Thread {
 						}
 
 						printWriter.flush();
-						logger.info("File transfer message sent to client");
+						logger.fine("File transfer message sent to client");
 						FileServer.printStatistics();
 						outputStream.close();
-						logger.info("File stream closed");
+						logger.fine("File stream closed");
 					} else if (data.equals("LIST")) {
 
 						// retrive file details
@@ -182,16 +182,16 @@ public class ClientHandler extends Thread {
 						printWriter.println(fileDetails.toString());
 						printWriter.flush();
 
-						logger.info("File details sent to client "+detail.getName());
+						logger.fine("File details sent to client "+detail.getName());
 						System.out.println("Data sent to client");
 
 					} else if (data.equals("END")) {
 						logger.info("Command was "+data);
 						System.out.println("Client " + detail.getName() + " requested for end connection");
-						logger.info("Client " + detail.getName() + " requested for end connection");
+						logger.fine("Client " + detail.getName() + " requested for end connection");
 						FileServer.disconnectClient(detail);
 						socket.close();
-						logger.info("Socket closed");
+						logger.fine("Socket closed");
 						break;
 					} else {
 						// System.out.println("Invalid request:" + data);
@@ -199,11 +199,11 @@ public class ClientHandler extends Thread {
 						logger.info("Sending echo");
 						printWriter.println("ECHO");
 						printWriter.flush();
-						logger.info("ECHO sent");
+						logger.fine("ECHO sent");
 					}
 
 				} catch (Exception e) {
-					logger.severe(e.getMessage());
+					logger.warning(e.getMessage());
 					FileServer.disconnectClient(detail);
 					detail.setOnline(false);
 					break;

@@ -19,9 +19,10 @@ import com.sun.istack.internal.Nullable;
 public class FileServer {
 	public static int PORT = 5555;
 	public static Statistics statistics;
-	public static FileHandler fileHandler=null;
+	public static FileHandler fileHandler = null;
+
 	public static void disconnectClient(@Nullable ClientDetail detail) {
-		if(detail!=null)
+		if (detail != null)
 			System.out.println("Client " + detail.getName() + " is disconnected");
 		else
 			System.out.println("Client is disconnected");
@@ -36,27 +37,30 @@ public class FileServer {
 		System.out.println("Uploaded data in bytes:-" + statistics.getDataUploaded());
 		System.out.println("----------------------------------------------------");
 	}
-	
-	void prepareFile(String path) throws IOException{
-FileOutputStream fileOutputStream=new FileOutputStream(new File(path),true);
-		BufferedOutputStream bufferedOutputStream=new BufferedOutputStream(fileOutputStream);
-		bufferedOutputStream.write("-----------------------------------------------------------------------------------\n".getBytes());
+
+	static void prepareFile(String path) throws IOException {
+		FileOutputStream fileOutputStream = new FileOutputStream(new File(path), true);
+		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+		bufferedOutputStream.write(
+				"-----------------------------------------------------------------------------------\n".getBytes());
 		bufferedOutputStream.close();
 	}
 
 	public static void main(String[] args) {
 		LogManager.getLogManager().reset();
-		Logger log=null;
+		Logger log = null;
 		try {
-			String path="C:\\Users\\Administrator\\Desktop\\"+new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())+"-server-log.log";
-			fileHandler=new FileHandler(path,true);	
+			String path = "C:\\Users\\Administrator\\Desktop\\"
+					+ new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + "-server-log.log";
+			prepareFile(path);
+			fileHandler = new FileHandler(path, true);
 			fileHandler.setFormatter(new SimpleFormatter());
-			log=Logger.getLogger(FileServer.class.getName());
+			log = Logger.getLogger(FileServer.class.getName());
 			log.addHandler(fileHandler);
 		} catch (SecurityException | IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		BufferedReader reader = null;
@@ -68,7 +72,7 @@ FileOutputStream fileOutputStream=new FileOutputStream(new File(path),true);
 		try {
 			serverSocket = new ServerSocket(PORT);
 			System.out.println("Server started");
-			log.info("Server started");
+			log.fine("Server started");
 		} catch (IOException e) {
 			System.out.println("Error while starting server.Please close other pprogram using PORT " + PORT);
 			log.warning("Error while starting server.Please close other pprogram using PORT " + PORT);
@@ -81,61 +85,63 @@ FileOutputStream fileOutputStream=new FileOutputStream(new File(path),true);
 		// wait for connection
 		while (true && serverSocket != null) {
 			try {
-//				System.out.println("Waiting for connection");
+				// System.out.println("Waiting for connection");
 				log.info("Waiting for connection");
 				socket = serverSocket.accept();
 				System.out.println("Client connected");
-				log.info("Client connected "+socket.toString());
+				log.info("Client connected " + socket.toString());
 				statistics.addActiveUers();
 				printStatistics();
-				
+
 				// receiving name
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				try {
 					log.info("Reading name");
 					name = reader.readLine();
-					log.info("Name readed Name-"+name);
+					log.fine("Name readed Name-" + name);
 
 				} catch (Exception e) {
-					log.severe(e.getMessage());;
+					log.severe(e.getMessage());
+					;
 					disconnectClient(null);
 					continue;
 				}
-//				}
+				// }
 				System.out.println("Client " + name + " is connected");
 
 				// sending ack to client
-				log.info("Sending ACK for name to "+socket.toString());
+				log.info("Sending ACK for name to " + socket.toString());
 				printWriter = new PrintWriter(socket.getOutputStream());
 				printWriter.println("ACK");
 				printWriter.flush();
-				log.info("ACK sent to "+socket.toString());
+				log.fine("ACK sent to " + socket.toString());
 
 				// checking for existing details
 				log.info("Checking for existing details");
 				if (clientDetails.containsKey(name)) {
-					log.info("Existing details found "+socket.toString());
+					log.info("Existing details found " + socket.toString());
 					// existing user
 					// replacing socket
 					log.info("Replacing details");
 					detail = clientDetails.get(name);
 					detail.setSocket(socket);
 					detail.setOnline(true);
-					log.info("Socket replaced "+socket.toString());
+					log.fine("Socket replaced " + socket.toString());
 				} else {
 
 					// new user
-					log.info("New user "+socket.toString());
+					log.info("New user " + socket.toString());
 					// creating details
 					detail = new ClientDetail(name, socket, true);
 					clientDetails.put(name, detail);
-					log.info("Details added");
+					log.fine("Details added");
 				}
 				// stating thread
-				log.info("Thread starting for "+socket.toString());				
-				ClientHandler clientHandler=new ClientHandler(detail);
+				log.info("Thread starting for " + socket.toString());
+				ClientHandler clientHandler = new ClientHandler(detail);
 				clientHandler.start();
-				log.info("Thread started for client "+name+" "+socket.toString()+" Thread name"+clientHandler.getName());
+				log.fine("Thread started for client " + name + " " + socket.toString() + " Thread name"
+						+ clientHandler.getName());
 			} catch (IOException e) {
 				log.severe(e.getMessage());
 				disconnectClient(null);
