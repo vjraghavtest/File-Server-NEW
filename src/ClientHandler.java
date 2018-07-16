@@ -24,7 +24,7 @@ public class ClientHandler extends Thread {
 	}
 
 	public String gettimestamp() {
-		return new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss.SSS").format(new java.util.Date());
+		return new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss.SSS").format(new java.util.Date());
 	}
 
 	public void run() {
@@ -51,7 +51,7 @@ public class ClientHandler extends Thread {
 					inputStream.read(buffer);
 					String data = new String(buffer);
 					data = data.substring(0, data.lastIndexOf('|'));
-					logger.fine("Formatted data"+data);
+					logger.fine("Formatted data" + data);
 					// System.out.println(fileDetail);
 
 					// handling data
@@ -72,8 +72,6 @@ public class ClientHandler extends Thread {
 							String tmp2 = stringTokenizer2.nextToken();
 							file.put(tmp1, tmp2);
 							logger.info(tmp1 + "----" + tmp2 + "----");
-							// System.out.println(tmp1 + "----" + tmp2 +
-							// "----");
 						}
 						logger.fine("File details received");
 						// System.out.println("File Details received");
@@ -82,7 +80,8 @@ public class ClientHandler extends Thread {
 						// new path
 						String owner = file.get("owner");
 						logger.info("Owner " + owner);
-						String filename = gettimestamp() + "-" + file.get("name");
+						String timestamp=gettimestamp();
+						String filename = timestamp + "-" + file.get("name");
 						logger.info("File name " + filename);
 						String path = "C:\\Users\\Administrator\\Desktop\\";
 						path += owner + "\\" + filename;
@@ -114,30 +113,32 @@ public class ClientHandler extends Thread {
 						logger.info("Receiving file");
 						try {
 							while (true) {
-//								logger.info("Reading from stream");
+								// logger.info("Reading from stream");
 								int bytesRead = inputStream.read(buffer, 0, (int) Math.min(bufferSize, remainingBytes));
 
-//								logger.info(bytesRead + " bytes received");
+								// logger.info(bytesRead + " bytes received");
 								if (bytesRead < 0 || remainingBytes <= 0)
 									break;
 								else
 									remainingBytes = remainingBytes - bytesRead;
 
-//								logger.info(remainingBytes + " bytes remaining");
+								// logger.info(remainingBytes + " bytes
+								// remaining");
 								outputStream.write(buffer, 0, bytesRead);
-//								logger.info(bytesRead + " bytes written to file");
+								// logger.info(bytesRead + " bytes written to
+								// file");
 							}
 						} catch (Exception e) {
 							// e.printStackTrace();
 							logger.warning(e.getMessage());
-							logger.info("Data transfered "+(filesize - remainingBytes));
+							logger.info("Data transfered " + (filesize - remainingBytes));
 							FileServer.disconnectClient(detail);
 							FileServer.statistics.addDataUploaded(filesize - remainingBytes);
 							break;
 						}
 						outputStream.flush();
-						
-						logger.info("File received successfully.Data transferred is "+filesize);
+
+						logger.info("File received successfully.Data transferred is " + filesize);
 						FileServer.statistics.addDataUploaded(filesize);
 
 						// verification using checksum
@@ -148,15 +149,18 @@ public class ClientHandler extends Thread {
 							FileServer.statistics.addFilesUploaded();
 							// success message to client
 							printWriter.println("SUCCESS " + path);
-							System.out.println("File received successfully from "+detail.getName());
+							logger.info("Writing file data into file log");
+							FileLogbook.getInstance().writeLog(timestamp, file.get("name"), owner);
+							logger.fine("File details written into file log");
+							System.out.println("File received successfully from " + detail.getName());
 							// adding to details
-							FileDetail fileDetail2 = new FileDetail(file.get("name"), path);
+							FileDetail fileDetail2 = new FileDetail(file.get("name"), path,timestamp);
 							detail.getFiles().add(fileDetail2);
 
 						} else {
 							// Sending failure response
 							logger.info("File are not same");
-							System.out.println("File transfer Incomplete from "+detail.getName());
+							System.out.println("File transfer Incomplete from " + detail.getName());
 							printWriter.println("TRANSFER FAILED");
 						}
 
@@ -168,7 +172,7 @@ public class ClientHandler extends Thread {
 					} else if (data.equals("LIST")) {
 
 						// retrive file details
-						logger.info("Command was "+data);
+						logger.info("Command was " + data);
 						ArrayList<FileDetail> files = detail.getFiles();
 
 						// parse it as string (JSON format)
@@ -176,17 +180,17 @@ public class ClientHandler extends Thread {
 						for (FileDetail fileData : files) {
 							fileDetails.append(fileData.getName() + "<" + fileData.getPath() + "|");
 						}
-						 logger.info("Data is " + fileDetails);
+						logger.info("Data is " + fileDetails);
 
 						// send to client
 						printWriter.println(fileDetails.toString());
 						printWriter.flush();
 
-						logger.fine("File details sent to client "+detail.getName());
+						logger.fine("File details sent to client " + detail.getName());
 						System.out.println("Data sent to client");
 
 					} else if (data.equals("END")) {
-						logger.info("Command was "+data);
+						logger.info("Command was " + data);
 						System.out.println("Client " + detail.getName() + " requested for end connection");
 						logger.fine("Client " + detail.getName() + " requested for end connection");
 						FileServer.disconnectClient(detail);

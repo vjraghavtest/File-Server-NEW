@@ -3,20 +3,19 @@ import java.util.LinkedHashMap;
 public class Statistics {
 	private int filesUploaded, activeUers;
 	private long dataUploaded;
+	LinkedHashMap<String, ClientDetail> clientDetails;
 
 	public int getActiveUers() {
 		return activeUers;
 	}
 
 	public void addActiveUers() {
-		this.activeUers+=1;
-	}
-	
-	public void removeActiveUers() {
-		this.activeUers-=1;
+		this.activeUers += 1;
 	}
 
-	LinkedHashMap<String, ClientDetail> clientDetails;
+	public void removeActiveUers() {
+		this.activeUers -= 1;
+	}
 
 	public Statistics() {
 		filesUploaded = (int) (dataUploaded = 0);
