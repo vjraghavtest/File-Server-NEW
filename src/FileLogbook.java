@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -107,6 +108,29 @@ public class FileLogbook {
 		return log;
 	}
 
+	// public String[][] readByFilesize() throws IOException {
+	// // Get full list of user
+	// String[][] details = readByTimestamp();
+	//
+	// // throw exception if no element found
+	// if (details.length == 0)
+	// throw new NoSuchElementException();
+	//
+	// // sort based on file size
+	// for (int i = 0; i < details.length; i++) {
+	// for (int j = i + 1; j < details.length; j++) {
+	// if (Long.parseLong(details[i][3]) < Long.parseLong(details[j][3])) {
+	// String[] tmp = details[i];
+	// details[i] = details[j];
+	// details[j] = tmp;
+	// }
+	// }
+	// }
+	//
+	// // return as array
+	// return details;
+	// }
+
 	/*
 	 * Read by file size
 	 * 
@@ -114,26 +138,38 @@ public class FileLogbook {
 	 * order)
 	 */
 	public String[][] readByFilesize() throws IOException {
-		// Get full list of user
-		String[][] details = readByTimestamp();
+		BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+		LinkedList<String[]> log = new LinkedList<String[]>();
+		// reads until EOF
+		while (true) {
+			// read line
+			String msg = reader.readLine();
+			if (msg == null)
+				break;
+			// parse using stringTokenizer
+			StringTokenizer stringTokenizer = new StringTokenizer(msg, "|");
+			String[] record = new String[4];
+			int count = 0;
+			// store it in array
+			while (stringTokenizer.hasMoreTokens()) {
+				record[count++] = stringTokenizer.nextToken();
+			}
 
-		// throw exception if no element found
-		if (details.length == 0)
-			throw new NoSuchElementException();
-
-		// sort based on file size
-		for (int i = 0; i < details.length; i++) {
-			for (int j = i + 1; j < details.length; j++) {
-				if (Long.parseLong(details[i][3]) < Long.parseLong(details[j][3])) {
-					String[] tmp = details[i];
-					details[i] = details[j];
-					details[j] = tmp;
+			// run loop log size times
+			int i;
+			for (i = 0; i < log.size(); i++) {
+				// compare element i with record
+				if (Long.parseLong(record[3]) >= Long.parseLong(log.get(i)[3])) {
+					// if new size greater or equal than old size then break
+					break;
 				}
 			}
-		}
+			// add at i th index
+			log.add(i, record);
 
-		// return as array
-		return details;
+			// return as array
+		}
+		return log.toArray(new String[log.size()][]);
 	}
 
 	/*
