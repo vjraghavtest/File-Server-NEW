@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class FileLogbook {
@@ -108,29 +107,6 @@ public class FileLogbook {
 		return log;
 	}
 
-	// public String[][] readByFilesize() throws IOException {
-	// // Get full list of user
-	// String[][] details = readByTimestamp();
-	//
-	// // throw exception if no element found
-	// if (details.length == 0)
-	// throw new NoSuchElementException();
-	//
-	// // sort based on file size
-	// for (int i = 0; i < details.length; i++) {
-	// for (int j = i + 1; j < details.length; j++) {
-	// if (Long.parseLong(details[i][3]) < Long.parseLong(details[j][3])) {
-	// String[] tmp = details[i];
-	// details[i] = details[j];
-	// details[j] = tmp;
-	// }
-	// }
-	// }
-	//
-	// // return as array
-	// return details;
-	// }
-
 	/*
 	 * Read by file size
 	 * 
@@ -169,6 +145,7 @@ public class FileLogbook {
 
 			// return as array
 		}
+		reader.close();
 		return log.toArray(new String[log.size()][]);
 	}
 
@@ -192,7 +169,7 @@ public class FileLogbook {
 			list[pos][0] = nameList[i];
 			list[pos][1] = Integer.toString(details.get(nameList[i]).size());
 			for (int j = 4; j >= 0; j--) {
-				if (list[j][1] == null || Integer.parseInt(list[pos][1]) > Integer.parseInt(list[j][1])) {
+				if (list[j][1] == null || Integer.parseInt(list[pos][1]) >= Integer.parseInt(list[j][1])) {
 					String[] tmp = list[j];
 					list[j] = list[pos];
 					list[pos] = tmp;

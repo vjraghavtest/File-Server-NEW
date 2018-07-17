@@ -17,7 +17,7 @@ public class ConsoleHandler extends Thread {
 			try {
 				// reading ip
 				System.out.println(
-						"\n1.View file details by timestamp\n2.View file details by user\n3.View by file size(Decending)\n4.View top uploaders\n5.File catagory by file size\n6.Exit\nEnter choice number:-");
+						"\n1.View file details by timestamp\n2.View file details by user\n3.View by file size(Decending)\n4.View top 5 uploaders\n5.File catagory by file size\n6.Exit\nEnter choice number:-");
 				String cmd = reader.readLine();
 				log.fine("Readed console cmd " + cmd);
 				int choice = Integer.parseInt(cmd);
@@ -82,10 +82,45 @@ public class ConsoleHandler extends Thread {
 						log.fine("User details not found");
 					}
 				} else if (choice == 3) {
+					// reading details based on file size
+					log.info("Retriving data from file");
+					String[][] data = FileLogbook.getInstance().readByFilesize();
+					log.fine("Data retrived from file");
+					if (data.length == 0) {
+						log.fine("No data to display");
+						System.out.println("No file details available");
+						continue;
+					}
+					System.out.println(
+							"Timestamp\t\tFilename\t\t\tUsername\tSize(Mb)\n-------------------------------------------------------------------------------");
+					for (String[] record : data) {
+						System.out.printf("%s %-35s %-10s %-5.2f\n", record[0], record[1], record[2],
+								Double.parseDouble(record[3]) / 1000000d);
+					}
+					log.fine("Data extracted and displayed");
 				} else if (choice == 4) {
+					// Top 5 users
+					String[][] users = FileLogbook.getInstance().top5UserList();
+					System.out.println(
+							"Username\tNo.of files uploaded\n-------------------------------------------------------------------------------");
+					for (int i = 0; i < 5; i++) {
+						if (users[i][0] == null)
+							break;
+						System.out.printf("%-15s - %s\n", users[i][0], users[i][1]);
+					}
+					
+					log.fine("Data extracted and printed to console");
 				} else if (choice == 5) {
+					//file catagory
+					int[] data=FileLogbook.getInstance().countFilesBySize();
+					log.fine("Data parsed from file");
+					System.out.println("-------------------------------------------------------------------------------");
+					System.out.println(data[0]+" files received below 1mb size");
+					System.out.println(data[1]+" files received between 1mb to 100mb size");
+					System.out.println(data[2]+" files received above 100mb size");
+					System.out.println("-------------------------------------------------------------------------------");
+					log.fine("Data printed to console");
 				} else if (choice == 6) {
-
 					log.info("Shutting down server");
 					FileServer.endServer();
 					// System.exit(0);

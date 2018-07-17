@@ -131,7 +131,7 @@ public class ClientHandler extends Thread {
 							}
 						} catch (Exception e) {
 							// e.printStackTrace();
-//							logger.warning(e.getMessage());
+							// logger.warning(e.getMessage());
 							logger.log(Level.WARNING, "Exception while receiving file", e);
 							logger.info("Data transfered " + (filesize - remainingBytes));
 							FileServer.disconnectClient(detail);
@@ -209,7 +209,7 @@ public class ClientHandler extends Thread {
 					}
 
 				} catch (Exception e) {
-//					logger.warning(e.getMessage());
+					// logger.warning(e.getMessage());
 					logger.log(Level.WARNING, "Client disconnected", e);
 					FileServer.disconnectClient(detail);
 					detail.setOnline(false);
@@ -217,7 +217,7 @@ public class ClientHandler extends Thread {
 				}
 			}
 		} catch (Exception e) {
-//			logger.severe(e.getMessage());
+			// logger.severe(e.getMessage());
 			logger.log(Level.SEVERE, "Client disconnected", e);
 		}
 	}
