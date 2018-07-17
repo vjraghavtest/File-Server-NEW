@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -130,7 +131,8 @@ public class ClientHandler extends Thread {
 							}
 						} catch (Exception e) {
 							// e.printStackTrace();
-							logger.warning(e.getMessage());
+//							logger.warning(e.getMessage());
+							logger.log(Level.WARNING, "Exception while receiving file", e);
 							logger.info("Data transfered " + (filesize - remainingBytes));
 							FileServer.disconnectClient(detail);
 							FileServer.statistics.addDataUploaded(filesize - remainingBytes);
@@ -150,11 +152,11 @@ public class ClientHandler extends Thread {
 							// success message to client
 							printWriter.println("SUCCESS " + path);
 							logger.info("Writing file data into file log");
-							FileLogbook.getInstance().writeLog(timestamp, file.get("name"), owner);
+							FileLogbook.getInstance().writeLog(timestamp, file.get("name"), owner, filesize);
 							logger.fine("File details written into file log");
 							System.out.println("File received successfully from " + detail.getName());
 							// adding to details
-							FileDetail fileDetail2 = new FileDetail(file.get("name"), path, timestamp);
+							FileDetail fileDetail2 = new FileDetail(file.get("name"), path, timestamp, filesize);
 							detail.getFiles().add(fileDetail2);
 
 						} else {
@@ -207,14 +209,16 @@ public class ClientHandler extends Thread {
 					}
 
 				} catch (Exception e) {
-					logger.warning(e.getMessage());
+//					logger.warning(e.getMessage());
+					logger.log(Level.WARNING, "Client disconnected", e);
 					FileServer.disconnectClient(detail);
 					detail.setOnline(false);
 					break;
 				}
 			}
 		} catch (Exception e) {
-			logger.severe(e.getMessage());
+//			logger.severe(e.getMessage());
+			logger.log(Level.SEVERE, "Client disconnected", e);
 		}
 	}
 }

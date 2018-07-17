@@ -26,25 +26,36 @@ public class ConsoleHandler extends Thread {
 					ArrayList<ArrayList<String>> details = FileLogbook.getInstance().readByTimestamp();
 					log.fine("Data fetched from file");
 					System.out.println("Total no. of files received is " + details.size());
-
-					log.info("Console cmd " + cmd);
+					
+					if(details.size()==0){
+						log.fine("No Data found to display");
+						continue;
+					}
+					
 					// further detail
 					System.out.println("Enter 1 to view full details");
 					cmd = reader.readLine();
+					log.info("Console cmd " + cmd);
 					if (Integer.parseInt(cmd) == 1) {
 						System.out.println(
-								"Timestamp\t\tFilename\t\t\tUsername\n-------------------------------------------------------------------------------");
+								"Timestamp\t\tFilename\t\t\tUsername\tFilesize\n-------------------------------------------------------------------------------");
 						for (ArrayList<String> record : details) {
 							// for(String data:record){
 							// System.out.printf("%-30s ",data);
 							// }
-							System.out.printf("%s %-35s %-10s\n", record.get(0), record.get(1), record.get(2));
+							System.out.printf("%s %-35s %-8s %-10d\n", record.get(0), record.get(1), record.get(2),
+									Long.parseLong(record.get(3)));
 						}
 					}
 					log.fine("Data retrived and printed to console");
 				} else if (choice == 2) {
 					LinkedHashMap<String, ArrayList<FileDetail>> details = FileLogbook.getInstance().readByUser();
 					log.fine("Info fetched from file based on username");
+					if (details.isEmpty()) {
+						System.out.println("No details found");
+						log.fine("No data found from file");
+						continue;
+					}
 					System.out.println("Username  -  No. of files uploaded");
 					for (String username : details.keySet()) {
 						// System.out.println(username+" - "
@@ -59,10 +70,11 @@ public class ConsoleHandler extends Thread {
 						log.info("Name found");
 						ArrayList<FileDetail> userDetail = details.get(name);
 						System.out.println(
-								"Filename\t\t\t\t\tTimestamp\n-------------------------------------------------------------------------------");
+								"Filename\t\t\t\tTimestamp\t\tFilesize\n-------------------------------------------------------------------------------");
 						for (FileDetail fileDetail : userDetail) {
 							// System.out.println(fileDetail.getName()+"\t"+fileDetail.getTimestamp());
-							System.out.printf("%-35s %s\n", fileDetail.getName(), fileDetail.getTimestamp());
+							System.out.printf("%-35s %-10s %d\n", fileDetail.getName(), fileDetail.getTimestamp(),
+									fileDetail.getFilesize());
 						}
 						log.fine("User details printed");
 					} else {
@@ -79,9 +91,11 @@ public class ConsoleHandler extends Thread {
 				}
 			} catch (IOException | NumberFormatException e) {
 				System.out.println("Invalid input");
-				log.warning(e.getMessage());
+//				log.warning(e.getMessage());
+				log.log(Level.WARNING, "Invalid input", e);
 			} catch (Exception e) {
-				log.severe(e.getMessage());
+				log.log(Level.SEVERE,"Exception",e);
+				
 			}
 		}
 	}

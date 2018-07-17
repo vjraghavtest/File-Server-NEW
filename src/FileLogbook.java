@@ -25,9 +25,9 @@ public class FileLogbook {
 	}
 
 	// writing data
-	public void writeLog(String timestamp, String filename, String username) throws IOException {
+	public void writeLog(String timestamp, String filename, String username, long filesize) throws IOException {
 		// preparing data
-		String data = timestamp + "|" + filename + "|" + username + "\n";
+		String data = timestamp + "|" + filename + "|" + username + "|" + filesize + "\n";
 		// "|"+filepath +
 		// Creating op writer
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(path), true));
@@ -85,10 +85,11 @@ public class FileLogbook {
 			String timestamp = stringTokenizer.nextToken();
 			String filename = stringTokenizer.nextToken();
 			String username = stringTokenizer.nextToken();
+			long filesize=Long.parseLong(stringTokenizer.nextToken());
 			// String filepath = stringTokenizer.nextToken();
 			// System.out.println(timestamp + " " + filename + " " + username);
 
-			FileDetail detail = new FileDetail(filename, null, timestamp);
+			FileDetail detail = new FileDetail(filename, null, timestamp,filesize);
 			ArrayList<FileDetail> list = null;
 			if (log.containsKey(username)) {
 				list = log.get(username);
@@ -104,4 +105,5 @@ public class FileLogbook {
 		// returning op obj
 		return log;
 	}
+
 }

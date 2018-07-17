@@ -72,6 +72,7 @@ public class FileServer {
 			log.addHandler(fileHandler);
 			log.setLevel(Level.ALL);
 		} catch (SecurityException | IOException e1) {
+			System.out.println("Error opening log file");
 			e1.printStackTrace();
 		}
 		// start server
@@ -89,7 +90,8 @@ public class FileServer {
 
 		} catch (IOException e) {
 			System.out.println("Error while starting server.Please close other pprogram using PORT " + PORT);
-			log.warning("Error while starting server.Please close other pprogram using PORT " + PORT);
+//			log.warning("Error while starting server.Please close other pprogram using PORT " + PORT);
+			log.log(Level.WARNING, "Error while starting server.Please close other pprogram using PORT " + PORT, e);
 		}
 
 		// creating client details
@@ -152,13 +154,15 @@ public class FileServer {
 					log.fine("Thread started for client " + name + " " + socket.toString() + " Thread name "
 							+ clientHandler.getName());
 				} catch (Exception e) {
-					log.severe(e.getMessage());
+//					log.severe(e.getMessage());
+					log.log(Level.SEVERE, "Client disconnected", e);
 					disconnectClient(null);
 					continue;
 				}
 
 			} catch (IOException e) {
-				log.severe(e.getMessage());
+//				log.severe(e.getMessage());
+				log.log(Level.SEVERE, "Client disconnected", e);
 				disconnectClient(null);
 			}
 		}
