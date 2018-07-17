@@ -6,23 +6,37 @@ import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Thread to handle console i/o operation on server
+ * 
+ * @author Administrator
+ *
+ */
 public class ConsoleHandler extends Thread {
+	/**
+	 * Overrides run() methon in java.lang.Thread class
+	 */
 	public void run() {
+		// init reader and logger
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		Logger log = Logger.getLogger(this.getClass().getName());
 		log.addHandler(FileServer.fileHandler);
 		log.setLevel(Level.ALL);
 		log.info("In console handler thread");
+
+		// infinite loop until server stops
 		while (true) {
 			try {
+
 				// reading ip
 				System.out.println(
 						"\n1.View file details by timestamp\n2.View file details by user\n3.View by file size(Decending)\n4.View top 5 uploaders\n5.File catagory by file size\n6.Exit\nEnter choice number:-");
 				String cmd = reader.readLine();
 				log.fine("Readed console cmd " + cmd);
 				int choice = Integer.parseInt(cmd);
-				// display by timestamp
+				
 				if (choice == 1) {
+					// display by timestamp
 					String[][] details = FileLogbook.getInstance().readByTimestamp();
 					log.fine("Data fetched from file");
 					System.out.println("Total no. of files received is " + details.length);
@@ -40,15 +54,14 @@ public class ConsoleHandler extends Thread {
 						System.out.println(
 								"Timestamp\t\tFilename\t\t\tUsername\tFilesize\n-------------------------------------------------------------------------------");
 						for (String[] record : details) {
-							// for(String data:record){
-							// System.out.printf("%-30s ",data);
-							// }
 							System.out.printf("%s %-35s %-8s %-10d\n", record[0], record[1], record[2],
 									Long.parseLong(record[3]));
 						}
 					}
 					log.fine("Data retrived and printed to console");
+					
 				} else if (choice == 2) {
+					//display by username
 					LinkedHashMap<String, ArrayList<FileDetail>> details = FileLogbook.getInstance().readByUser();
 					log.fine("Info fetched from file based on username");
 					if (details.isEmpty()) {
@@ -56,10 +69,10 @@ public class ConsoleHandler extends Thread {
 						log.fine("No data found from file");
 						continue;
 					}
+					
+					//display from parsed data
 					System.out.println("Username  -  No. of files uploaded");
 					for (String username : details.keySet()) {
-						// System.out.println(username+" - "
-						// +details.get(username).size());
 						System.out.printf("%-15s - %d\n", username, details.get(username).size());
 					}
 					log.fine("Details printed to console");
@@ -72,7 +85,6 @@ public class ConsoleHandler extends Thread {
 						System.out.println(
 								"Filename\t\t\t\tTimestamp\t\tFilesize\n-------------------------------------------------------------------------------");
 						for (FileDetail fileDetail : userDetail) {
-							// System.out.println(fileDetail.getName()+"\t"+fileDetail.getTimestamp());
 							System.out.printf("%-35s %-10s %d\n", fileDetail.getName(), fileDetail.getTimestamp(),
 									fileDetail.getFilesize());
 						}
@@ -108,17 +120,19 @@ public class ConsoleHandler extends Thread {
 							break;
 						System.out.printf("%-15s - %s\n", users[i][0], users[i][1]);
 					}
-					
+
 					log.fine("Data extracted and printed to console");
 				} else if (choice == 5) {
-					//file catagory
-					int[] data=FileLogbook.getInstance().countFilesBySize();
+					// file catagory
+					int[] data = FileLogbook.getInstance().countFilesBySize();
 					log.fine("Data parsed from file");
-					System.out.println("-------------------------------------------------------------------------------");
-					System.out.println(data[0]+" files received below 1mb size");
-					System.out.println(data[1]+" files received between 1mb to 100mb size");
-					System.out.println(data[2]+" files received above 100mb size");
-					System.out.println("-------------------------------------------------------------------------------");
+					System.out
+							.println("-------------------------------------------------------------------------------");
+					System.out.println(data[0] + " files received below 1mb size");
+					System.out.println(data[1] + " files received between 1mb to 100mb size");
+					System.out.println(data[2] + " files received above 100mb size");
+					System.out
+							.println("-------------------------------------------------------------------------------");
 					log.fine("Data printed to console");
 				} else if (choice == 6) {
 					log.info("Shutting down server");

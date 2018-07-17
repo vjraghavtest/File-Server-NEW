@@ -15,8 +15,6 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import com.sun.istack.internal.Nullable;
-
 public class FileServer {
 	public static int PORT = 5555;
 	public static Statistics statistics;
@@ -24,17 +22,48 @@ public class FileServer {
 	public static ServerSocket serverSocket = null;
 	static boolean exit = false;
 
-	public static void disconnectClient(@Nullable ClientDetail detail) {
+	/**
+	 * Print message on console as "Client user is disconnected" ,reduce the no.
+	 * of active users by 1 and setOnline to false to that client details and
+	 * call printStatistics method
+	 * 
+	 * @param detail
+	 *            ClientDetail object holds connected client information
+	 */
+	public static void disconnectClient(ClientDetail detail) {
 		if (exit)
 			return;
-		if (detail != null)
+
+		// Print client disconnected message
+		if (detail != null) {
 			System.out.println("Client " + detail.getName() + " is disconnected");
-		else
+			detail.setOnline(false);
+		} else
 			System.out.println("Client is disconnected");
+
+		// reduce the count of active users by 1 and print statistics
 		statistics.removeActiveUers();
 		printStatistics();
 	}
 
+	/**
+	 * Return path of folder server located in user home directory depend on
+	 * operating system.If folder not exists then creates the folder
+	 * 
+	 * @return String denoting absolute path to server folder
+	 */
+	public static String getHomeDir() {
+		String home = System.getProperty("user.home") + System.getProperty("file.separator") + "Server"
+				+ System.getProperty("file.separator");
+		if (!new File(home).exists())
+			new File(home).mkdirs();
+		return home;
+	}
+
+	/**
+	 * Print no.of active users,no.of files uploaded and data transfered from
+	 * server started in this session
+	 */
 	public static void printStatistics() {
 		System.out.println("---------------------Statistics---------------------");
 		System.out.println("No.of users active:-" + statistics.getActiveUers());
@@ -43,6 +72,15 @@ public class FileServer {
 		System.out.println("----------------------------------------------------");
 	}
 
+	/**
+	 * Print an line in the log file to distinguise server startup in log file
+	 * 
+	 * @param path
+	 *            Path to the log file
+	 * @throws IOException
+	 *             Throws when IOException raised while opening or writing into
+	 *             file
+	 */
 	static void prepareFile(String path) throws IOException {
 		FileOutputStream fileOutputStream = new FileOutputStream(new File(path), true);
 		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
@@ -51,6 +89,12 @@ public class FileServer {
 		bufferedOutputStream.close();
 	}
 
+	/**
+	 * Disconnect all the client connected to server by closing all connected
+	 * socket and by setting boolean exit variable to true.This prevent all the
+	 * loops from running
+	 * 
+	 */
 	static void endServer() throws Exception {
 		exit = true;
 		serverSocket.close();
@@ -59,12 +103,23 @@ public class FileServer {
 		}
 	}
 
+	/**
+	 * Main method of the server handles logging ,server startup procedures,
+	 * acception connection until server ends and responsible to receive name
+	 * and sending ACK to client
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
+
+		// Reseting logmanager to prevent printing log into console
 		LogManager.getLogManager().reset();
+		// log file preparation
 		Logger log = null;
 		try {
-			String path = "C:\\Users\\Administrator\\Desktop\\"
-					+ new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + "-server-log.log";
+			// setting path for log file
+			String path = getHomeDir() + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())
+					+ "-server-log.log";
 			prepareFile(path);
 			fileHandler = new FileHandler(path, true);
 			fileHandler.setFormatter(new SimpleFormatter());
@@ -75,9 +130,12 @@ public class FileServer {
 			System.out.println("Error opening log file");
 			e1.printStackTrace();
 		}
+
 		// start server
 		System.out.println("Starting server");
 		try {
+
+			// create server socket
 			serverSocket = new ServerSocket(PORT);
 			System.out.println("Server started");
 			log.fine("Server started");
@@ -90,7 +148,6 @@ public class FileServer {
 
 		} catch (IOException e) {
 			System.out.println("Error while starting server.Please close other pprogram using PORT " + PORT);
-//			log.warning("Error while starting server.Please close other pprogram using PORT " + PORT);
 			log.log(Level.WARNING, "Error while starting server.Please close other pprogram using PORT " + PORT, e);
 		}
 
@@ -106,19 +163,24 @@ public class FileServer {
 				Socket socket = serverSocket.accept();
 				System.out.println("Client connected");
 				log.info("Client connected " + socket.toString());
-				
+
+				// Increment no.of active user count by 1
 				statistics.addActiveUers();
 				printStatistics();
 
 				// receiving name
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				try {
+					// setting socket timeout to 30s
 					socket.setSoTimeout(30000);
 					log.info("Reading name");
 					String name = reader.readLine();
 					log.fine("Name readed Name-" + name);
 					System.out.println("Client " + name + " is connected");
-					socket.setSoTimeout(0);
+
+					// resetting socket timeout to 5m
+					socket.setSoTimeout(300000);
+
 					// sending ack to client
 					log.info("Sending ACK for name to " + socket.toString());
 					PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
@@ -131,6 +193,7 @@ public class FileServer {
 					ClientDetail detail = null;
 					if (clientDetails.containsKey(name)) {
 						log.info("Existing details found " + socket.toString());
+
 						// existing user
 						// replacing socket
 						log.info("Replacing details");
@@ -142,11 +205,13 @@ public class FileServer {
 
 						// new user
 						log.info("New user " + socket.toString());
+
 						// creating details
 						detail = new ClientDetail(name, socket, true);
 						clientDetails.put(name, detail);
 						log.fine("Details added");
 					}
+
 					// stating thread
 					log.info("Thread starting for " + socket.toString());
 					ClientHandler clientHandler = new ClientHandler(detail);
@@ -154,14 +219,12 @@ public class FileServer {
 					log.fine("Thread started for client " + name + " " + socket.toString() + " Thread name "
 							+ clientHandler.getName());
 				} catch (Exception e) {
-//					log.severe(e.getMessage());
 					log.log(Level.SEVERE, "Client disconnected", e);
 					disconnectClient(null);
 					continue;
 				}
 
 			} catch (IOException e) {
-//				log.severe(e.getMessage());
 				log.log(Level.SEVERE, "Client disconnected", e);
 				disconnectClient(null);
 			}

@@ -13,11 +13,19 @@ public class FileLogbook {
 	private static FileLogbook logbook;
 	private String path;
 
+	/**
+	 * Constructor initialize path
+	 * @throws IOException
+	 */
 	private FileLogbook() throws IOException {
-		path = "C:\\Users\\Administrator\\Desktop\\file-log.txt";
+		path = FileServer.getHomeDir() + "file-log.txt";
 	}
 
-	// method that returns object
+	/**
+	 * Method returns object
+	 * @return FileLogbook Object of class FileLogbook
+	 * @throws IOException
+	 */
 	public static FileLogbook getInstance() throws IOException {
 		if (logbook == null) {
 			logbook = new FileLogbook();
@@ -25,7 +33,15 @@ public class FileLogbook {
 		return logbook;
 	}
 
-	// writing data
+	/**
+	 * Writes file details into file 
+	 * 
+	 * @param timestamp Timestamp for the file denoting date time of file received
+	 * @param filename	File name of the file
+	 * @param username	Name of user who owns the file
+	 * @param filesize	Filesize
+	 * @throws IOException
+	 */
 	public void writeLog(String timestamp, String filename, String username, long filesize) throws IOException {
 		// preparing data
 		String data = timestamp + "|" + filename + "|" + username + "|" + filesize + "\n";
@@ -39,7 +55,11 @@ public class FileLogbook {
 		bufferedWriter.close();
 	}
 
-	// Read by timestamp
+	/**
+	 * Retrive data from file based on timestamp
+	 * @return String[][]	String array has all file details
+	 * @throws IOException
+	 */
 	public String[][] readByTimestamp() throws IOException {
 
 		// creating output obj
@@ -68,7 +88,11 @@ public class FileLogbook {
 		return log.toArray(new String[log.size()][]);
 	}
 
-	// Read by user
+	/**
+	 * Returns an LinkedHashMap that contain all the file details categorized by username
+	 * @return LinkedHashMap<String, ArrayList<FileDetail>>	LinkedHashmap where key is username and value is Arraylist of Filedetail objects
+	 * @throws IOException
+	 */
 	public LinkedHashMap<String, ArrayList<FileDetail>> readByUser() throws IOException {
 
 		// creating output obj
@@ -107,7 +131,7 @@ public class FileLogbook {
 		return log;
 	}
 
-	/*
+	/**
 	 * Read by file size
 	 * 
 	 * @return String[][] Detailed list sorted based on filesize (Decending
@@ -149,7 +173,7 @@ public class FileLogbook {
 		return log.toArray(new String[log.size()][]);
 	}
 
-	/*
+	/**
 	 * top5UserList
 	 * 
 	 * @return String[][] Array of details about top users
@@ -182,7 +206,7 @@ public class FileLogbook {
 		return list;
 	}
 
-	/*
+	/**
 	 * countFilebySize
 	 * 
 	 * @return int[] represents no of files based on file size
