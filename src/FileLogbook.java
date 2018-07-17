@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class FileLogbook {
@@ -39,10 +40,10 @@ public class FileLogbook {
 	}
 
 	// Read by timestamp
-	public ArrayList<ArrayList<String>> readByTimestamp() throws IOException {
+	public String[][] readByTimestamp() throws IOException {
 
 		// creating output obj
-		ArrayList<ArrayList<String>> log = new ArrayList<ArrayList<String>>();
+		ArrayList<String[]> log = new ArrayList<String[]>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
 		while (true) {
 
@@ -59,12 +60,12 @@ public class FileLogbook {
 			while (stringTokenizer.hasMoreTokens()) {
 				record.add(stringTokenizer.nextToken());
 			}
-			log.add(record);
+			log.add(record.toArray(new String[record.size()]));
 		}
 		bufferedReader.close();
 
 		// returning op obj
-		return log;
+		return log.toArray(new String[log.size()][]);
 	}
 
 	// Read by user
@@ -85,11 +86,11 @@ public class FileLogbook {
 			String timestamp = stringTokenizer.nextToken();
 			String filename = stringTokenizer.nextToken();
 			String username = stringTokenizer.nextToken();
-			long filesize=Long.parseLong(stringTokenizer.nextToken());
+			long filesize = Long.parseLong(stringTokenizer.nextToken());
 			// String filepath = stringTokenizer.nextToken();
 			// System.out.println(timestamp + " " + filename + " " + username);
 
-			FileDetail detail = new FileDetail(filename, null, timestamp,filesize);
+			FileDetail detail = new FileDetail(filename, null, timestamp, filesize);
 			ArrayList<FileDetail> list = null;
 			if (log.containsKey(username)) {
 				list = log.get(username);
@@ -106,4 +107,103 @@ public class FileLogbook {
 		return log;
 	}
 
+	/*
+	 * Read by file size
+	 * 
+	 * @return String[][] Detailed list sorted based on filesize (Decending
+	 * order)
+	 */
+	public String[][] readByFilesize() throws IOException {
+		// Get full list of user
+		String[][] details = readByTimestamp();
+
+		// throw exception if no element found
+		if (details.length == 0)
+			throw new NoSuchElementException();
+
+		// sort based on file size
+		for (int i = 0; i < details.length; i++) {
+			for (int j = i + 1; j < details.length; j++) {
+				if (Long.parseLong(details[i][3]) < Long.parseLong(details[j][3])) {
+					String[] tmp = details[i];
+					details[i] = details[j];
+					details[j] = tmp;
+				}
+			}
+		}
+
+		// return as array
+		return details;
+	}
+
+	/*
+	 * top5UserList
+	 * 
+	 * @return String[][] Array of details about top users
+	 */
+	public String[][] top5UserList() throws IOException {
+		String[][] list = new String[6][2];
+
+		// retrive details
+		LinkedHashMap<String, ArrayList<FileDetail>> details = readByUser();
+
+		// retrive all names
+		String[] nameList = details.keySet().toArray(new String[details.keySet().size()]);
+
+		// sort by file count
+		for (int i = 0; i < nameList.length; i++) {
+			int pos = 5;
+			list[pos][0] = nameList[i];
+			list[pos][1] = Integer.toString(details.get(nameList[i]).size());
+			for (int j = 4; j >= 0; j--) {
+				if (list[j][1] == null || Integer.parseInt(list[pos][1]) > Integer.parseInt(list[j][1])) {
+					String[] tmp = list[j];
+					list[j] = list[pos];
+					list[pos] = tmp;
+					pos = j;
+				}
+			}
+		}
+
+		// return array
+		return list;
+	}
+
+	/*
+	 * countFilebySize
+	 * 
+	 * @return int[] represents no of files based on file size
+	 */
+	public int[] countFilesBySize() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+		int[] count = new int[3];
+		while (true) {
+
+			// read until EOF
+			String msg = reader.readLine();
+			if (msg == null)
+				break;
+
+			// parse and get file size
+			StringTokenizer stringTokenizer = new StringTokenizer(msg, "|");
+			for (int i = 0; i < 3; i++) {
+				stringTokenizer.nextToken();
+			}
+			long size = Long.parseLong(stringTokenizer.nextToken());
+
+			// catagerise based on file size
+			if (size < 1000000L) {
+				count[0]++;
+			} else if (size < 100000000L) {
+				count[1]++;
+			} else {
+				count[2]++;
+			}
+		}
+		reader.close();
+
+		// return as array
+		return count;
+
+	}
 }

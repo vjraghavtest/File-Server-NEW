@@ -17,21 +17,21 @@ public class ConsoleHandler extends Thread {
 			try {
 				// reading ip
 				System.out.println(
-						"\n1.View file details by timestamp\n2.View file details by user\n3.Exit\nEnter choice number:-");
+						"\n1.View file details by timestamp\n2.View file details by user\n3.View by file size(Decending)\n4.View top uploaders\n5.File catagory by file size\n6.Exit\nEnter choice number:-");
 				String cmd = reader.readLine();
 				log.fine("Readed console cmd " + cmd);
 				int choice = Integer.parseInt(cmd);
 				// display by timestamp
 				if (choice == 1) {
-					ArrayList<ArrayList<String>> details = FileLogbook.getInstance().readByTimestamp();
+					String[][] details = FileLogbook.getInstance().readByTimestamp();
 					log.fine("Data fetched from file");
-					System.out.println("Total no. of files received is " + details.size());
-					
-					if(details.size()==0){
+					System.out.println("Total no. of files received is " + details.length);
+
+					if (details.length == 0) {
 						log.fine("No Data found to display");
 						continue;
 					}
-					
+
 					// further detail
 					System.out.println("Enter 1 to view full details");
 					cmd = reader.readLine();
@@ -39,12 +39,12 @@ public class ConsoleHandler extends Thread {
 					if (Integer.parseInt(cmd) == 1) {
 						System.out.println(
 								"Timestamp\t\tFilename\t\t\tUsername\tFilesize\n-------------------------------------------------------------------------------");
-						for (ArrayList<String> record : details) {
+						for (String[] record : details) {
 							// for(String data:record){
 							// System.out.printf("%-30s ",data);
 							// }
-							System.out.printf("%s %-35s %-8s %-10d\n", record.get(0), record.get(1), record.get(2),
-									Long.parseLong(record.get(3)));
+							System.out.printf("%s %-35s %-8s %-10d\n", record[0], record[1], record[2],
+									Long.parseLong(record[3]));
 						}
 					}
 					log.fine("Data retrived and printed to console");
@@ -82,6 +82,10 @@ public class ConsoleHandler extends Thread {
 						log.fine("User details not found");
 					}
 				} else if (choice == 3) {
+				} else if (choice == 4) {
+				} else if (choice == 5) {
+				} else if (choice == 6) {
+
 					log.info("Shutting down server");
 					FileServer.endServer();
 					// System.exit(0);
@@ -91,11 +95,11 @@ public class ConsoleHandler extends Thread {
 				}
 			} catch (IOException | NumberFormatException e) {
 				System.out.println("Invalid input");
-//				log.warning(e.getMessage());
+				// log.warning(e.getMessage());
 				log.log(Level.WARNING, "Invalid input", e);
 			} catch (Exception e) {
-				log.log(Level.SEVERE,"Exception",e);
-				
+				log.log(Level.SEVERE, "Exception", e);
+
 			}
 		}
 	}
