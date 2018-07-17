@@ -22,10 +22,10 @@ public class FileServer {
 	public static Statistics statistics;
 	public static FileHandler fileHandler = null;
 	public static ServerSocket serverSocket = null;
-	static boolean exit=false;
+	static boolean exit = false;
 
 	public static void disconnectClient(@Nullable ClientDetail detail) {
-		if(exit)
+		if (exit)
 			return;
 		if (detail != null)
 			System.out.println("Client " + detail.getName() + " is disconnected");
@@ -34,7 +34,7 @@ public class FileServer {
 		statistics.removeActiveUers();
 		printStatistics();
 	}
-	
+
 	public static void printStatistics() {
 		System.out.println("---------------------Statistics---------------------");
 		System.out.println("No.of users active:-" + statistics.getActiveUers());
@@ -50,11 +50,11 @@ public class FileServer {
 				"-----------------------------------------------------------------------------------\n".getBytes());
 		bufferedOutputStream.close();
 	}
-	
-	static void endServer() throws Exception{
-		exit=true;
+
+	static void endServer() throws Exception {
+		exit = true;
 		serverSocket.close();
-		for(ClientDetail detail:statistics.getClientDetails().values()){
+		for (ClientDetail detail : statistics.getClientDetails().values()) {
 			detail.getSocket().close();
 		}
 	}
@@ -80,13 +80,13 @@ public class FileServer {
 			serverSocket = new ServerSocket(PORT);
 			System.out.println("Server started");
 			log.fine("Server started");
-			
-			//console handler
+
+			// console handler
 			log.info("Starting thread for console reader");
-			ConsoleHandler consoleHandler=new ConsoleHandler();
+			ConsoleHandler consoleHandler = new ConsoleHandler();
 			consoleHandler.start();
-			log.fine("Console handler Thread "+consoleHandler.getName()+" started");
-			
+			log.fine("Console handler Thread " + consoleHandler.getName() + " started");
+
 		} catch (IOException e) {
 			System.out.println("Error while starting server.Please close other pprogram using PORT " + PORT);
 			log.warning("Error while starting server.Please close other pprogram using PORT " + PORT);
@@ -104,6 +104,7 @@ public class FileServer {
 				Socket socket = serverSocket.accept();
 				System.out.println("Client connected");
 				log.info("Client connected " + socket.toString());
+				
 				statistics.addActiveUers();
 				printStatistics();
 

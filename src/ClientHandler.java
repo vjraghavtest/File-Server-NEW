@@ -39,7 +39,7 @@ public class ClientHandler extends Thread {
 
 			int bufferSize = 1024 * 1024;
 			String home = "C:\\Users\\Administrator\\Desktop\\";
-			while (true) {
+			while (!FileServer.exit) {
 				// initialization block
 				try {
 					PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
@@ -80,7 +80,7 @@ public class ClientHandler extends Thread {
 						// new path
 						String owner = file.get("owner");
 						logger.info("Owner " + owner);
-						String timestamp=gettimestamp();
+						String timestamp = gettimestamp();
 						String filename = timestamp + "-" + file.get("name");
 						logger.info("File name " + filename);
 						String path = "C:\\Users\\Administrator\\Desktop\\";
@@ -154,7 +154,7 @@ public class ClientHandler extends Thread {
 							logger.fine("File details written into file log");
 							System.out.println("File received successfully from " + detail.getName());
 							// adding to details
-							FileDetail fileDetail2 = new FileDetail(file.get("name"), path,timestamp);
+							FileDetail fileDetail2 = new FileDetail(file.get("name"), path, timestamp);
 							detail.getFiles().add(fileDetail2);
 
 						} else {

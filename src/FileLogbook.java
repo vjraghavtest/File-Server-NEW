@@ -27,8 +27,8 @@ public class FileLogbook {
 	// writing data
 	public void writeLog(String timestamp, String filename, String username) throws IOException {
 		// preparing data
-		String data = timestamp + "|" + filename + "|" + username +"\n";
-		//"|"+filepath +
+		String data = timestamp + "|" + filename + "|" + username + "\n";
+		// "|"+filepath +
 		// Creating op writer
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(path), true));
 		// writing data
@@ -40,53 +40,53 @@ public class FileLogbook {
 
 	// Read by timestamp
 	public ArrayList<ArrayList<String>> readByTimestamp() throws IOException {
-		
-		//creating output obj
+
+		// creating output obj
 		ArrayList<ArrayList<String>> log = new ArrayList<ArrayList<String>>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
 		while (true) {
-			
-			//reading from file
+
+			// reading from file
 			String msg = bufferedReader.readLine();
 			if (msg == null)
 				break;
-			
-			//Extracting data
+
+			// Extracting data
 			StringTokenizer stringTokenizer = new StringTokenizer(msg, "|");
 			ArrayList<String> record = new ArrayList<String>();
-			
-			//Adding into arraylist
+
+			// Adding into arraylist
 			while (stringTokenizer.hasMoreTokens()) {
 				record.add(stringTokenizer.nextToken());
 			}
 			log.add(record);
 		}
 		bufferedReader.close();
-		
-		//returning op obj
+
+		// returning op obj
 		return log;
 	}
 
 	// Read by user
 	public LinkedHashMap<String, ArrayList<FileDetail>> readByUser() throws IOException {
-		
-		//creating output obj
+
+		// creating output obj
 		LinkedHashMap<String, ArrayList<FileDetail>> log = new LinkedHashMap<String, ArrayList<FileDetail>>();
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)));
 		while (true) {
-			
-			//reading from file
+
+			// reading from file
 			String msg = bufferedReader.readLine();
 			if (msg == null)
 				break;
-			
-			//Extracting data
+
+			// Extracting data
 			StringTokenizer stringTokenizer = new StringTokenizer(msg, "|");
 			String timestamp = stringTokenizer.nextToken();
 			String filename = stringTokenizer.nextToken();
 			String username = stringTokenizer.nextToken();
-//			String filepath = stringTokenizer.nextToken();
-			System.out.println(timestamp + " " + filename + " " + username);
+			// String filepath = stringTokenizer.nextToken();
+			// System.out.println(timestamp + " " + filename + " " + username);
 
 			FileDetail detail = new FileDetail(filename, null, timestamp);
 			ArrayList<FileDetail> list = null;
@@ -95,13 +95,13 @@ public class FileLogbook {
 			} else {
 				list = new ArrayList<FileDetail>();
 			}
-			
-			//Adding into arraylist
+
+			// Adding into arraylist
 			list.add(detail);
 			log.put(username, list);
 		}
 		bufferedReader.close();
-		//returning op obj
+		// returning op obj
 		return log;
 	}
 }
