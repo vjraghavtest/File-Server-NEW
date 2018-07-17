@@ -111,11 +111,12 @@ public class FileServer {
 				// receiving name
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				try {
+					socket.setSoTimeout(30000);
 					log.info("Reading name");
 					String name = reader.readLine();
 					log.fine("Name readed Name-" + name);
 					System.out.println("Client " + name + " is connected");
-
+					socket.setSoTimeout(0);
 					// sending ack to client
 					log.info("Sending ACK for name to " + socket.toString());
 					PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
