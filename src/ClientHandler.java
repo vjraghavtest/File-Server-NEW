@@ -108,7 +108,7 @@ public class ClientHandler extends Thread {
 						String timestamp = gettimestamp();
 						String filename = timestamp + "-" + file.get("name");
 						logger.info("File name " + filename);
-						String path = home + owner + "\\" + filename;
+						String path = home + owner + System.getProperty("file.separator") + filename;
 						logger.info("New path " + path);
 
 						// creating folder
