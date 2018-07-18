@@ -179,8 +179,8 @@ public class ClientHandler extends Thread {
 							System.out.println("File transfer Incomplete from " + detail.getName());
 							printWriter.println("TRANSFER FAILED");
 						}
-						
-						//successful file transfer
+
+						// successful file transfer
 						printWriter.flush();
 						logger.fine("File transfer message sent to client");
 						FileServer.printStatistics();
@@ -207,7 +207,7 @@ public class ClientHandler extends Thread {
 						System.out.println("Data sent to client");
 
 					} else if (data.equals("END")) {
-						//client request for end of connection
+						// client request for end of connection
 						logger.info("Command was " + data);
 						System.out.println("Client " + detail.getName() + " requested for end connection");
 						logger.fine("Client " + detail.getName() + " requested for end connection");
@@ -216,7 +216,7 @@ public class ClientHandler extends Thread {
 						logger.fine("Socket closed");
 						break;
 					} else {
-						//sending echo message
+						// sending echo message
 						logger.info("Received echo");
 						logger.info("Sending echo");
 						printWriter.println("ECHO");

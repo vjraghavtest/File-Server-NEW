@@ -15,6 +15,7 @@ public class FileLogbook {
 
 	/**
 	 * Constructor initialize path
+	 * 
 	 * @throws IOException
 	 */
 	private FileLogbook() throws IOException {
@@ -23,6 +24,7 @@ public class FileLogbook {
 
 	/**
 	 * Method returns object
+	 * 
 	 * @return FileLogbook Object of class FileLogbook
 	 * @throws IOException
 	 */
@@ -34,12 +36,16 @@ public class FileLogbook {
 	}
 
 	/**
-	 * Writes file details into file 
+	 * Writes file details into file
 	 * 
-	 * @param timestamp Timestamp for the file denoting date time of file received
-	 * @param filename	File name of the file
-	 * @param username	Name of user who owns the file
-	 * @param filesize	Filesize
+	 * @param timestamp
+	 *            Timestamp for the file denoting date time of file received
+	 * @param filename
+	 *            File name of the file
+	 * @param username
+	 *            Name of user who owns the file
+	 * @param filesize
+	 *            Filesize
 	 * @throws IOException
 	 */
 	public void writeLog(String timestamp, String filename, String username, long filesize) throws IOException {
@@ -57,7 +63,8 @@ public class FileLogbook {
 
 	/**
 	 * Retrive data from file based on timestamp
-	 * @return String[][]	String array has all file details
+	 * 
+	 * @return String[][] String array has all file details
 	 * @throws IOException
 	 */
 	public String[][] readByTimestamp() throws IOException {
@@ -89,8 +96,11 @@ public class FileLogbook {
 	}
 
 	/**
-	 * Returns an LinkedHashMap that contain all the file details categorized by username
-	 * @return LinkedHashMap<String, ArrayList<FileDetail>>	LinkedHashmap where key is username and value is Arraylist of Filedetail objects
+	 * Returns an LinkedHashMap that contain all the file details categorized by
+	 * username
+	 * 
+	 * @return LinkedHashMap<String, ArrayList<FileDetail>> LinkedHashmap where
+	 *         key is username and value is Arraylist of Filedetail objects
 	 * @throws IOException
 	 */
 	public LinkedHashMap<String, ArrayList<FileDetail>> readByUser() throws IOException {
@@ -135,7 +145,7 @@ public class FileLogbook {
 	 * Read by file size
 	 * 
 	 * @return String[][] Detailed list sorted based on filesize (Decending
-	 * order)
+	 *         order)
 	 */
 	public String[][] readByFilesize() throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(new File(path)));

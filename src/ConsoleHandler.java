@@ -34,7 +34,7 @@ public class ConsoleHandler extends Thread {
 				String cmd = reader.readLine();
 				log.fine("Readed console cmd " + cmd);
 				int choice = Integer.parseInt(cmd);
-				
+
 				if (choice == 1) {
 					// display by timestamp
 					String[][] details = FileLogbook.getInstance().readByTimestamp();
@@ -59,9 +59,9 @@ public class ConsoleHandler extends Thread {
 						}
 					}
 					log.fine("Data retrived and printed to console");
-					
+
 				} else if (choice == 2) {
-					//display by username
+					// display by username
 					LinkedHashMap<String, ArrayList<FileDetail>> details = FileLogbook.getInstance().readByUser();
 					log.fine("Info fetched from file based on username");
 					if (details.isEmpty()) {
@@ -69,8 +69,8 @@ public class ConsoleHandler extends Thread {
 						log.fine("No data found from file");
 						continue;
 					}
-					
-					//display from parsed data
+
+					// display from parsed data
 					System.out.println("Username  -  No. of files uploaded");
 					for (String username : details.keySet()) {
 						System.out.printf("%-15s - %d\n", username, details.get(username).size());
